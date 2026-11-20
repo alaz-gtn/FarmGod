@@ -11,6 +11,7 @@
 ## SavedVariablesPerCharacter: FarmGodCharDB
 ## IconTexture: Interface\AddOns\FarmGod\media\icon
 ## X-License: GPL-3.0-or-later
+## X-Curse-Project-ID: 1818570
 
 Locales.lua
 Init.lua

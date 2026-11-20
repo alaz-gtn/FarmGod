@@ -1,6 +1,6 @@
 # FarmGod
 
-Addon de sesiones de farmeo para WoW Forever, hermano de HunterGod y MageGod, con la misma ventana de opciones en dorado. Sirve para cualquier clase: minería, herboristería, desuello, pesca o matar bichos.
+Addon de sesiones de farmeo para WoW Forever (en CurseForge: proyecto 1818570, autor **wowforeverplus**), hermano de HunterGod y MageGod, con la misma ventana de opciones en dorado. Sirve para cualquier clase: minería, herboristería, desuello, pesca o matar bichos.
 
 - **Sesiones**: empieza sola al despojar o recolectar algo (o con el botón de play), se pausa, se reanuda, se termina (va al historial) o se pone a cero. Si pasas un rato sin despojar nada (10 minutos por defecto) se pausa sola, quita ese rato de su tiempo y sigue con el próximo botín. Aguanta un `/reload` o salir del juego; el tiempo desconectado no cuenta.
 - **Lo que vale**: el oro despojado y el botín por familias (objetos grises, menas y gemas, hierbas, cuero y pieles, telas, elementales, carne y pescado, encantamiento, otros materiales, recetas, equipo verde, equipo azul y épico, otros), la más valiosa primero, con oro por hora. Al pasar el ratón por una familia salen sus objetos, cuántos y lo que vale cada uno.
