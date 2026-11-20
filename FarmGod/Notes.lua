@@ -170,12 +170,13 @@ StaticPopupDialogs.FARMGOD_NOTE = {
 		local box = self.GetEditBox and self:GetEditBox() or self.editBox or self.EditBox
 		if box then ns.SetNote(data, box:GetText()) end
 	end,
-	EditBoxOnEnterPressed = function(box)
-		local popup = box:GetParent()
-		ns.SetNote(popup.data, box:GetText())
-		popup:Hide()
+	-- The game hands over the player as data; older clients only through the box's parent
+	EditBoxOnEnterPressed = function(box, data)
+		local parent = box:GetParent()
+		ns.SetNote(data or (parent and parent.data), box:GetText())
+		StaticPopup_Hide("FARMGOD_NOTE")
 	end,
-	EditBoxOnEscapePressed = function(box) box:GetParent():Hide() end,
+	EditBoxOnEscapePressed = function() StaticPopup_Hide("FARMGOD_NOTE") end,
 	timeout = 0,
 	whileDead = true,
 	hideOnEscape = true,

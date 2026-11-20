@@ -192,6 +192,7 @@ TooltipDataProcessor = { AddTooltipPostCall = function(kind, fn) if kind == 2 th
 ACCEPT, CANCEL = "Accept", "Cancel"
 StaticPopupDialogs = {}
 StaticPopup_Show = function(name, a, b, data) POPUP = name POPUP_DATA = data end
+StaticPopup_Hide = function(name) if POPUP == name then POPUP = nil end end
 GetCursorPosition = function() return 0, 100 end
 
 -- Frames and textures: the methods the tests look at keep their state, the rest do nothing
@@ -403,7 +404,7 @@ check(cur()["items"][2770] == 5 and cur().links[2770] == link_ore, "5 Copper Ore
 check(cur().zone == "Elwynn Forest" and cur().started == 1000000, "where and when it started")
 loot(818, 1, new_style=True)
 check(cur()["items"][818] == 1 and cur().quality[818] == 2, "Tigerseye from a |cnIQ link: counted, green")
-G.Fire("CHAT_MSG_LOOT", G.string.format(G.LOOT_ITEM, "Goten", G.Link(2771)))
+G.Fire("CHAT_MSG_LOOT", G.string.format(G.LOOT_ITEM, "Yamcha", G.Link(2771)))
 G.Fire("CHAT_MSG_LOOT", G.string.format(G.LOOT_ITEM_PUSHED_SELF, G.Link(2771)))
 check(cur()["items"][2771] is None, "someone else's loot and items handed to you don't count")
 G.Fire("CHAT_MSG_LOOT", G.SECRET)
@@ -1028,14 +1029,14 @@ out = slash(nw)
 check(out == [L.PREFIX + L.NOTES_NONE], "no notes, no target: how to set one")
 out = slash(f"{nw} Farmer")
 check(out == [L.PREFIX + L.NOTE_NO_TARGET], "a note with nobody targeted: target someone first")
-player("target", "Goten", "Farmson", "ROGUE")
+player("target", "Yamcha", "Farmson", "ROGUE")
 out = slash(f"{nw} Farmer")
-goten = notes["goten farmson"]
-check(goten is not None and goten.note == "Farmer" and goten.name == "Goten Farmson", "/farmgod note Farmer on your target: First Surname")
-check(goten["class"] == "ROGUE" and goten.zone == "Elwynn Forest" and goten.seen == 1000000, "with their class, where and when")
-check(out == [L.PREFIX + G.string.format(L.NOTE_SET, "Goten Farmson", "Farmer")], f"said once, no alert for who you're looking at: {out}")
+yamcha = notes["yamcha farmson"]
+check(yamcha is not None and yamcha.note == "Farmer" and yamcha.name == "Yamcha Farmson", "/farmgod note Farmer on your target: First Surname")
+check(yamcha["class"] == "ROGUE" and yamcha.zone == "Elwynn Forest" and yamcha.seen == 1000000, "with their class, where and when")
+check(out == [L.PREFIX + G.string.format(L.NOTE_SET, "Yamcha Farmson", "Farmer")], f"said once, no alert for who you're looking at: {out}")
 ns.UpdateTracker()
-check(near_text() == G.string.format(L.NEAR, "|cfffff468Goten Farmson|r (Farmer) " + L.AGO_NOW),
+check(near_text() == G.string.format(L.NEAR, "|cfffff468Yamcha Farmson|r (Farmer) " + L.AGO_NOW),
       f"the window: on your layer, in their class colour: {near_text()}")
 
 # Seen by their nameplate: on your layer
@@ -1090,8 +1091,8 @@ check(len(printed) == 1 and "Krillin Bald" in printed[0], "the mouse over one: s
 # Who's on your layer, in the window, until it's old news or you change layer
 ns.UpdateTracker()
 text = near_text()
-check(text is not None and text.index("Krillin") < text.index("Vegeta") and "Goten" not in text,
-      f"the last seen first; Goten, not seen for over 10 minutes, gone: {text}")
+check(text is not None and text.index("Krillin") < text.index("Vegeta") and "Yamcha" not in text,
+      f"the last seen first; Yamcha, not seen for over 10 minutes, gone: {text}")
 S.now = S.now + 11 * 60
 ns.UpdateTracker()
 check(near_text() is None, "after 10 minutes not seen: off the list")
@@ -1148,10 +1149,15 @@ check(box.text == L.NOTE_DEFAULT, "it starts as Farmer")
 box.SetText(box, "Farmer pesada")
 dialog.OnAccept(popup, "Bulma Brief")
 check(notes["bulma brief"].note == "Farmer pesada", "accepted: noted")
+G.POPUP = "FARMGOD_NOTE"
+box.SetText(box, "")
+dialog.EditBoxOnEnterPressed(box, "Bulma Brief")
+check(notes["bulma brief"] is None and G.POPUP is None, "emptied with Enter: taken off, and the box closes")
+ns.SetNote("Bulma Brief", "Farmer")
 popup.data = "Bulma Brief"
 box.SetText(box, "")
 dialog.EditBoxOnEnterPressed(box)
-check(notes["bulma brief"] is None, "emptied with Enter: taken off")
+check(notes["bulma brief"] is None, "an older client, with the player only on the box's parent: the same")
 root = G.MenuRoot()
 player("party1", "Me", "Myself", me=True)
 G.MENUS["MENU_UNIT_PARTY"](None, root, lua.table(unit="party1"))
@@ -1160,9 +1166,9 @@ check(len(list(root.buttons.values())) == 0, "not in your own menu")
 # Slash: the box, taking it off, the list
 G.POPUP = None
 slash(nw)
-check(G.POPUP == "FARMGOD_NOTE" and G.POPUP_DATA == "Goten Farmson", "/farmgod note alone with a target: the box")
+check(G.POPUP == "FARMGOD_NOTE" and G.POPUP_DATA == "Yamcha Farmson", "/farmgod note alone with a target: the box")
 out = slash(f"{nw} " + word("remove", "quitar"))
-check(notes["goten farmson"] is None and out == [L.PREFIX + G.string.format(L.NOTE_REMOVED, "Goten Farmson")], "and taking it off")
+check(notes["yamcha farmson"] is None and out == [L.PREFIX + G.string.format(L.NOTE_REMOVED, "Yamcha Farmson")], "and taking it off")
 S.units.target = None
 out = slash(nw)
 check(out[0] == L.PREFIX + L.NOTES_TITLE and len(out) == 3, f"alone with nobody targeted: the list: {out}")
