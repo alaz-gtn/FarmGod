@@ -748,6 +748,8 @@ end
 -- The day as rows: the gold, where it came from and went, the loot, the rest; then the days before
 local function DayRows()
 	local rows = {}
+	-- Day.lua is a newer file: until the game restarts it isn't there
+	if not ns.Day then return { { kind = "note", left = L.NEEDS_RESTART } } end
 	local day = ns.Day()
 	if day then
 		local played = ns.DayPlayed(day)
@@ -784,7 +786,7 @@ local function DayRows()
 			end
 			table.insert(rows, { kind = "note", left = L.DAY_LOOT_NOTE })
 		end
-		local reps = ns.RepList(day)
+		local reps = ns.RepList and ns.RepList(day) or {}
 		if #reps > 0 then
 			table.insert(rows, { kind = "gap" })
 			table.insert(rows, { kind = "big", left = L.DAY_REP })
@@ -815,7 +817,7 @@ local function DayRows()
 					if header then tip:AddLine(left, MUTED[1], MUTED[2], MUTED[3]) else tip:AddDoubleLine("  " .. left, right, 1, 1, 1, 1, 1, 1) end
 				end)
 				tip:AddDoubleLine(L.DAY_LOOT, ns.Money(loot), 1, 1, 1, 1, 1, 1)
-				for _, rep in ipairs(ns.RepList(past)) do tip:AddDoubleLine("  " .. rep.name, ns.Signed(rep.delta), 1, 1, 1, 1, 1, 1) end
+				for _, rep in ipairs(ns.RepList and ns.RepList(past) or {}) do tip:AddDoubleLine("  " .. rep.name, ns.Signed(rep.delta), 1, 1, 1, 1, 1, 1) end
 				local counts = DayCounts(past)
 				if counts ~= "" then tip:AddLine(counts, MUTED[1], MUTED[2], MUTED[3]) end
 				local zones = DayZones(past)
@@ -841,7 +843,7 @@ local function HistoryList(page, y)
 		GameTooltip:SetOwner(line, "ANCHOR_RIGHT")
 		GameTooltip:AddLine(line.when:GetText(), ACCENT[1], ACCENT[2], ACCENT[3])
 		if ns.Kills(s) > 0 then GameTooltip:AddDoubleLine(L.TIP_KILLS, ns.Kills(s), 1, 1, 1, 1, 1, 1) end
-		for _, rep in ipairs(ns.RepList(s)) do GameTooltip:AddDoubleLine(rep.name, ns.Signed(rep.delta), 1, 1, 1, 1, 1, 1) end
+		for _, rep in ipairs(ns.RepList and ns.RepList(s) or {}) do GameTooltip:AddDoubleLine(rep.name, ns.Signed(rep.delta), 1, 1, 1, 1, 1, 1) end
 		if worth.money > 0 then GameTooltip:AddDoubleLine(L.LOOTED_GOLD, ns.Money(worth.money), 1, 1, 1, 1, 1, 1) end
 		for _, family in ipairs(worth.families) do
 			if not family.skip then
@@ -939,6 +941,7 @@ local function NewPage(key, title, icon)
 	Fancy(tab.label, 15)
 	tab.label:SetPoint("LEFT", tab.icon, "RIGHT", 10, 0)
 	tab.label:SetText(title)
+	tab.title = title
 	tab:SetScript("OnClick", function()
 		ns.ShowOptionsPage(key)
 		Click()
@@ -961,6 +964,13 @@ function ns.ShowOptionsPage(key)
 		tab.selected:SetShown(on)
 		tab.bar:SetShown(on)
 		tab.label:SetTextColor(unpack(on and TEXT or MUTED))
+		-- Text set while the game was still loading the round font can come out blank: set it again,
+		-- in the game's own font if the round one draws nothing
+		tab.label:SetText(tab.title)
+		if (tab.label:GetStringWidth() or 0) < 1 then
+			tab.label:SetFont(GameFontNormal:GetFont(), 15, "")
+			tab.label:SetText(tab.title)
+		end
 		if on then
 			scroll:SetScrollChild(page)
 			scroll:SetVerticalScroll(0)
@@ -1079,7 +1089,7 @@ StaticPopupDialogs.FARMGOD_NEW_DAY = {
 	button1 = YES or "Yes",
 	button2 = NO or "No",
 	OnAccept = function()
-		ns.NewDay()
+		if ns.NewDay then ns.NewDay() end
 		ns.Print(L.NEW_DAY_DONE)
 	end,
 	timeout = 0,

@@ -233,6 +233,7 @@ local L = {
 	DAY_LINE_RIGHT = "%s  ·  loot %s",
 	DAY_REPORT = "day: %s played, %s gold (%s an hour played), loot worth %s, %d kills, %d quests.",
 	TIP_DAY = "Day",
+	NEEDS_RESTART = "Restart the game (a /reload isn't enough) to see this: it comes in a new file.",
 
 	REP_SESSION = "This session",
 	REP_HOUR = "An hour",
@@ -481,6 +482,7 @@ if GetLocale() == "esES" or GetLocale() == "esMX" then
 	L.DAY_LINE_RIGHT = "%s  ·  botín %s"
 	L.DAY_REPORT = "jornada: %s jugadas, %s de oro (%s por hora jugada), botín por %s, %d bichos, %d misiones."
 	L.TIP_DAY = "Jornada"
+	L.NEEDS_RESTART = "Reinicia el juego (no basta con /reload) para ver esto: viene en un archivo nuevo."
 
 	L.REP_SESSION = "Esta sesión"
 	L.REP_HOUR = "Por hora"

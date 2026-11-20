@@ -344,7 +344,7 @@ local function RepRow(i)
 end
 
 local function DrawRep(y, s, seconds)
-	local list = s and ns.RepList(s) or {}
+	local list = s and ns.RepList and ns.RepList(s) or {} -- (Rep.lua is new: missing until the game restarts)
 	local shown = min(#list, MAX_REP)
 	for i = 1, shown do
 		local rep = list[i]
