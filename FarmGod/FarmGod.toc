@@ -1,0 +1,25 @@
+## Interface: 16001
+## Title: FarmGod
+## Notes: Farming sessions: the gold and loot you gather mining, picking herbs, skinning, fishing or killing mobs, valued by family with Auctionator or TSM prices that update when you visit the auction house. Gold per hour, nodes, mobs, XP, history, goals like quest objectives (40 Thorium Ore...) and notes on players (Farmer) that tell you when one is on your layer. /farmgod
+## Notes-esES: Sesiones de farmeo: el oro y el botín que sacas minando, recogiendo hierbas, desollando, pescando o matando bichos, valorado por familias con los precios de Auctionator o TSM, que se actualizan al pasar por la casa de subastas. Oro por hora, nodos, bichos, experiencia, historial, objetivos como los de las misiones (40 menas de torio...) y notas a jugadores (Farmer) que avisan cuando uno está en tu capa. /farmgod
+## Notes-esMX: Sesiones de farmeo: el oro y el botín que sacas minando, recogiendo hierbas, desollando, pescando o matando bichos, valorado por familias con los precios de Auctionator o TSM, que se actualizan al pasar por la casa de subastas. Oro por hora, nodos, bichos, experiencia, historial, objetivos como los de las misiones (40 menas de torio...) y notas a jugadores (Farmer) que avisan cuando uno está en tu capa. /farmgod
+## Author: wowforeverplus
+## Version: 1.0.0
+## Category: Professions
+## OptionalDeps: Auctionator, TradeSkillMaster
+## SavedVariables: FarmGodDB
+## SavedVariablesPerCharacter: FarmGodCharDB
+## IconTexture: Interface\AddOns\FarmGod\media\icon
+## X-License: GPL-3.0-or-later
+
+Locales.lua
+Init.lua
+Items.lua
+Session.lua
+Day.lua
+Rep.lua
+Goals.lua
+Notes.lua
+Tracker.lua
+MinimapButton.lua
+Options.lua
