@@ -294,6 +294,21 @@ function ns.MigrateSettings(db)
 	db.version = SETTINGS_VERSION
 end
 
+-- Per character
+function ns.MigrateChar(char)
+	if (char.version or 1) < 2 then
+		-- The first reputation version counted the game filling the factions in as gains: start again
+		local function Clear(t)
+			if type(t) == "table" then t.rep, t.repNames = nil, nil end
+		end
+		Clear(char.current)
+		Clear(char.day)
+		for _, s in ipairs(char.history or {}) do Clear(s) end
+		for _, d in ipairs(char.days or {}) do Clear(d) end
+	end
+	char.version = 2
+end
+
 local frame = CreateFrame("Frame")
 frame:RegisterEvent("ADDON_LOADED")
 frame:SetScript("OnEvent", function(self, event, name)
@@ -301,6 +316,7 @@ frame:SetScript("OnEvent", function(self, event, name)
 	FarmGodDB = Fill(FarmGodDB or {}, defaults)
 	ns.MigrateSettings(FarmGodDB)
 	FarmGodCharDB = Fill(FarmGodCharDB or {}, charDefaults)
+	ns.MigrateChar(FarmGodCharDB)
 	ns.db = FarmGodDB
 	ns.char = FarmGodCharDB
 	self:UnregisterEvent("ADDON_LOADED")

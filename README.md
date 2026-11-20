@@ -10,7 +10,7 @@ Addon de sesiones de farmeo para WoW Forever, hermano de HunterGod y MageGod, co
   - Cada una sale en el color de su nivel, con lo ganado, lo que da por hora y una barrita de cuánto llevas del nivel.
   - Al pasar el ratón: dónde estás (Amistoso 800/6.000), cuánto falta para el siguiente nivel y cuánto tardarías a ese ritmo.
   - También sale en la jornada y en los tooltips del historial.
-  - Se lee de las propias facciones del juego, comparando lo que tienes con lo que había, y no de los mensajes del chat. Un salto grande desde cero se ignora: es el juego cargando la facción, no una ganancia.
+  - Se lee de las propias facciones del juego, comparando lo que tienes con lo que había, y no de los mensajes del chat. Tras cada pantalla de carga espera 5 segundos antes de contar: en ese rato el juego va rellenando las facciones, y la primera versión contaba eso como reputación ganada.
 - **Contadores**: abajo, nodos de minería, hierbas, desuellos, peces, robos, experiencia por hora y subidas de habilidad.
 - **Mazmorras**: cuenta igual. Tu botín (también lo que ganas en las tiradas), tu parte del oro en grupo y las muertes de todo el grupo. El equipo verde va por lo que paga un vendedor y el azul y épico a precio de subasta (salvo el que se liga al recogerlo, a vendedor); se cambia en Familias. Si una sesión empieza dentro, el historial la guarda con el nombre de la mazmorra. Si no quieres que un jefe largo o un wipe la pausen por inactividad, sube los minutos de la pausa o ponlos a 0.
 - **Objetivos**: "40 menas de torio, 60 de cuero grueso, 2 cristales arcanos". Cuentan lo que llevas en las bolsas (y en el banco, si quieres), como los objetivos de una misión: salen en la ventana con su barra, cada paso aparece en amarillo en el centro de la pantalla y, al cumplirlo, en verde con el sonido de las misiones. Al pasar el ratón dice cuánto llevas de ese objeto en la sesión y cuánto tardarías en el resto a ese ritmo. Se ponen en la pestaña Objetivos (arrastrando el objeto, con Mayús+clic o escribiendo su nombre o su ID) o con `/farmgod objetivo 40 [Mena de torio]`.
@@ -39,7 +39,7 @@ Registrar un evento que el cliente no tiene da un error, y ese error corta el re
 
 ## Carpetas
 
-- `FarmGod/`: el addon tal como se instala en `_forever_\Interface\AddOns`. En este PC esa carpeta es una unión (junction) a esta, así que los cambios llegan al juego sin copiar nada: con `/reload` basta, salvo los archivos nuevos, que piden reiniciar el juego.
+- `FarmGod/`: el addon tal como se instala en `_forever_\Interface\AddOns`. En este PC esa carpeta es una unión (junction) a esta, así que los cambios llegan al juego sin copiar nada: con `/reload` basta. Un `/reload` también carga los archivos nuevos: el 2026-11-20 cargó `Day.lua` y `Rep.lua`, creados con el juego abierto.
 - `tools/`: `test_addon.py` (pruebas con lupa) y `make_logo.py` (logo, icono del minimapa y los iconos blancos de los botones de la ventana; necesita pillow).
 - `curseforge/`: logo, descripción y registro de cambios para la página del proyecto.
 - `release/`: los zips que se suben a CurseForge (no van al repositorio).

@@ -4,11 +4,15 @@ local L = ns.L
 -- Reputation: what each faction gave you in the session and in the day, an hour, and how far the
 -- next standing is at that pace. Read from the factions themselves (how much you have with each)
 -- rather than from the chat: Forever leaves some chat events out. A gain is the difference with
--- what was there before; the first reading after the login only sets where each one stands
+-- what was there before. After each loading screen the game fills the factions in over a few
+-- moments (20 Nov 2026: a session counted 15 factions' whole standing as gains): nothing counts
+-- until 5 seconds after it, when where each one stands is read again
+local SETTLE = 5
 local MAX_ID = 4000 -- faction ids looked up once: Forever's own may be past vanilla's
 local BOGUS = 10000 -- more than this at once is the game loading the factions, not a gain
 local known -- by faction id: how much you had last time
 local seen -- the factions there are
+local ready = false -- read since the last loading screen
 
 local function Changed()
 	if ns.Changed then ns.Changed() end
@@ -64,11 +68,15 @@ local function Add(where, id, delta, name)
 	where.repNames[id] = name
 end
 
+-- Where each one stands now: what changes from here on is a gain
+local function Settled()
+	Scan()
+	ready = true
+end
+ns.SettleRep = Settled -- for the tests
+
 function ns.CheckRep()
-	if not known then
-		Scan()
-		return
-	end
+	if not ready then return end
 	local any = false
 	for id in pairs(seen) do
 		local d = ns.FactionData(id)
@@ -118,11 +126,11 @@ function ns.Signed(n)
 end
 
 local events = CreateFrame("Frame")
-ns.Listen(events, "PLAYER_LOGIN", "UPDATE_FACTION", "CHAT_MSG_COMBAT_FACTION_CHANGE")
+ns.Listen(events, "PLAYER_ENTERING_WORLD", "UPDATE_FACTION", "CHAT_MSG_COMBAT_FACTION_CHANGE")
 events:SetScript("OnEvent", function(_, event)
-	if event == "PLAYER_LOGIN" then
-		-- Where each one stands, once the game has them
-		C_Timer.After(3, ns.CheckRep)
+	if event == "PLAYER_ENTERING_WORLD" then
+		ready = false
+		C_Timer.After(SETTLE, Settled)
 	else
 		ns.CheckRep()
 	end

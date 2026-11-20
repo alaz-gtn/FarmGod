@@ -1304,8 +1304,18 @@ check(any(t.startswith(L.TIP_DAY) for t in G.TOOLTIP.values()), "the minimap but
 
 # ---------------------------------------------------------------- Reputation
 slash(word("start", "empezar"))
-G.RunTimers()  # the reading after the login: where each faction stands
 s = cur()
+# A loading screen: the game fills the factions in over a few moments; none of it is a gain
+G.Fire("PLAYER_ENTERING_WORLD")
+S.factions[47] = lua.table_from({"name": "Ironforge", "currentStanding": 0, "reaction": 5,
+                                  "currentReactionThreshold": 3000, "nextReactionThreshold": 9000})
+G.Fire("UPDATE_FACTION")
+S.factions[47].currentStanding = 3100
+G.Fire("UPDATE_FACTION")
+check(s.rep is None and ns.Day().rep is None, "while the game loads the factions: nothing counts")
+G.RunTimers()  # 5 seconds later: where each faction stands
+G.Fire("UPDATE_FACTION")
+check(s.rep is None, "settled: Ironforge's 3,100 is where it stands, not a gain")
 S.factions[529].currentStanding = 3750  # Argent Dawn, +250
 G.Fire("UPDATE_FACTION")
 check(s.rep[529] == 250 and s.repNames[529] == "Argent Dawn", "250 with the Argent Dawn: in the session")
@@ -1382,6 +1392,17 @@ out = slash(word("button", "boton"))
 check(db.minimapButton.hide and not button.shown, "the minimap button can be hidden")
 slash("button")
 check(button.shown, "and shown")
+
+# ---------------------------------------------------------------- Saved by the first reputation version
+old_char = lua.eval('''{ current = { rep = { [47] = 3100 }, repNames = { [47] = "Ironforge" }, items = { [2770] = 3 } },
+  day = { rep = { [69] = 4000 } }, history = { { rep = { [87] = -6500 } } }, days = {} }''')
+ns.MigrateChar(old_char)
+check(old_char.current.rep is None and old_char.day.rep is None and old_char.history[1].rep is None
+      and old_char.current["items"][2770] == 3 and old_char.version == 2,
+      "its reputation (the game loading the factions, counted as gains) is cleared; the loot stays")
+old_char.current.rep = lua.table_from({47: 50})
+ns.MigrateChar(old_char)
+check(old_char.current.rep[47] == 50, "only once")
 
 # ---------------------------------------------------------------- A client without some events: nothing stops
 # (20 Nov 2026: one combat chat event Forever didn't have stopped Session.lua half loaded. After the next
