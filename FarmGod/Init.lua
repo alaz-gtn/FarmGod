@@ -5,7 +5,8 @@ local L = ns.L
 local defaults = {
 	session = {
 		autoStart = true, -- looting or gathering with no session going starts one
-		idleMinutes = 10, -- this long with nothing looted: paused, and that stretch doesn't count (0: never)
+		idlePause = false, -- pause by itself after a while with nothing looted (off: the clock keeps the real time)
+		idleMinutes = 10, -- that while; the stretch with nothing looted doesn't count
 		bigLoot = 5, -- gold: loot worth this much or more is said in the chat (0: never)
 	},
 	prices = {
@@ -16,6 +17,9 @@ local defaults = {
 		vendorFallback = true, -- no auction price: what a vendor pays
 	},
 	categories = {}, -- by family: auction | vendor | skip (Items.lua fills in each one's default)
+	craft = {
+		enabled = true, -- the crafting cost in item tooltips
+	},
 	goals = {
 		announce = true, -- each step in the middle of the screen, as quests do
 		bank = false, -- count what's in the bank too
@@ -133,9 +137,28 @@ end
 ns.FONTS = {
 	fredoka = "Interface\\AddOns\\FarmGod\\media\\FredokaOne-Regular.ttf",
 }
+-- One font object per size, shared by every text in that size. Each text loading the file itself
+-- (SetFont on the FontString) left some of them undrawn in Forever: on 23 Nov 2026 the tabs Goals,
+-- Notes and Day had their text, shown, at full alpha and with a width, yet nothing on screen
+local fancyFonts = {}
 function ns.FancyFont(fontString, size, flags)
-	fontString:SetFont(GameFontNormal:GetFont(), size, flags or "")
-	fontString:SetFont(ns.FONTS.fredoka, size, flags or "")
+	flags = flags or ""
+	local key = size .. flags
+	local font = fancyFonts[key]
+	if not font then
+		font = CreateFont("FarmGodFancy" .. size .. flags:gsub("%W", ""))
+		font:SetFont(GameFontNormal:GetFont(), size, flags) -- the game's own, in case the round one can't load
+		font:SetFont(ns.FONTS.fredoka, size, flags)
+		fancyFonts[key] = font
+	end
+	-- The font object brings its own colour and shadow: the text keeps the ones it had
+	local r, g, b, a = fontString:GetTextColor()
+	local sx, sy = fontString:GetShadowOffset()
+	local sr, sg, sb, sa = fontString:GetShadowColor()
+	fontString:SetFontObject(font)
+	if r then fontString:SetTextColor(r, g, b, a) end
+	if sx then fontString:SetShadowOffset(sx, sy) end
+	if sr then fontString:SetShadowColor(sr, sg, sb, sa) end
 end
 
 -- The thin letters of the window: the game's narrow Arial, over its usual font in case it isn't

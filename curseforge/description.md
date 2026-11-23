@@ -14,6 +14,7 @@
 - 📈 **Experience**
 - 👀 **Mark players who are also farming**: you're told when they show up, so you know when to change layer
 - 📜 **Track the materials you need**, like a quest's objectives ("40 Thorium Ore")
+- 🔨 **Crafting cost in any item's tooltip**, against its auction price, even for professions you don't have
 - 🕒 **Gold per hour**, and a summary of your whole playing day
 
 ### De un vistazo
@@ -24,6 +25,7 @@
 - 📈 **Experiencia**
 - 👀 **Marca a los jugadores que también están farmeando**: te avisa cuando aparecen, para saber cuándo cambiar de capa (layer)
 - 📜 **Sigue los materiales que necesitas**, como si fueran los objetivos de una misión ("40 menas de torio")
+- 🔨 **Coste de fabricación en el tooltip de cualquier objeto**, frente a su precio en subasta, aunque no tengas la profesión
 - 🕒 **Oro por hora**, y un resumen de toda tu jornada de juego
 
 Everything is set up from the **minimap button** or `/farmgod`. English and Spanish.
@@ -40,7 +42,7 @@ Todo se configura desde el **botón del minimapa** o con `/farmgod`. En inglés 
 - A small **kill counter** in the title bar. Hover it for kills an hour and gold a kill.
 - **Reputation** gained with each faction, an hour, with a bar for your standing. Hover it for how long until the next standing at your pace.
 - Nodes mined, herbs picked, skins, fish, XP an hour and skill-ups at the foot.
-- The session starts by itself when you loot or gather something. After 10 minutes with nothing looted it pauses, and those minutes don't count. It goes on with your next loot. It survives a /reload or a logout, and the time you're logged out doesn't count.
+- The session starts by itself when you loot or gather something. It survives a /reload or a logout, and the time you're logged out doesn't count. If you want, it can also pause by itself when you loot nothing for a while (off by default, so your gold per hour counts the real time).
 
 ### Prices
 
@@ -68,6 +70,13 @@ A summary of everything you play, session or not, until you've been away a few h
 
 Past days are kept, so you know what that six-hour evening of dungeons, farming and quests was really worth.
 
+### Crafting cost in item tooltips
+
+- Hover any item a profession makes: its **crafting cost** with your prices, and how much **cheaper (green) or dearer (red)** that is than its auction price.
+- The profession and skill it takes (Leatherworking 300…), and the cost per unit when the recipe makes several.
+- Hold **Shift** for each material: how many × its price. Each material goes at the cheaper of the auction house and a vendor that sells it (thread, vials, flux…). A material with no price shows "no price" instead of a wrong total.
+- It works for professions none of your characters has, and with no recipe addon. The recipes come with FarmGod, from AtlasLoot Forever's data, including the ones Forever added. When an item has several recipes, it takes the cheapest.
+
 ### Player notes: who's farming your layer
 
 - Note a player ("Farmer", "Bot"…) from their right-click menu, or with `/farmgod note Farmer` on your target.
@@ -80,7 +89,7 @@ Past days are kept, so you know what that six-hour evening of dungeons, farming 
 - A chat message when something you loot is worth 5 gold or more (you set how much).
 - Works in dungeons too: your loot and rolls won, your share of the gold, and your group's kills.
 
-Made for WoW Forever (game version 1.60.1). Forever hides some things from addons in combat and leaves out some game events: FarmGod works around both.
+Made for WoW Forever (game version 1.60.1). Forever hides some things from addons in combat and leaves out some game events: FarmGod works around both. Recipes from AtlasLoot Forever (GPL), with thanks.
 
 ---
 
@@ -93,7 +102,7 @@ Made for WoW Forever (game version 1.60.1). Forever hides some things from addon
 - Un **contador de bichos matados** pequeño en la barra de título. Al pasar el ratón: bichos por hora y oro por bicho.
 - La **reputación** ganada con cada facción, por hora, con una barra de tu nivel. Al pasar el ratón: cuánto tardarías en el siguiente nivel a tu ritmo.
 - Abajo: nodos de minería, hierbas, pieles, peces, experiencia por hora y subidas de habilidad.
-- La sesión empieza sola cuando despojas o recolectas algo. Tras 10 minutos sin despojar nada se pausa, y esos minutos no cuentan; sigue sola con tu próximo botín. Aguanta un /reload o salir del juego, y el tiempo desconectado no cuenta.
+- La sesión empieza sola cuando despojas o recolectas algo. Aguanta un /reload o salir del juego, y el tiempo desconectado no cuenta. Si quieres, también puede pausarse sola cuando pasas un rato sin despojar nada (viene apagado, para que el oro por hora cuente el tiempo real).
 
 ### Precios
 
@@ -121,6 +130,13 @@ Un resumen de todo lo que juegas, haya sesión o no, hasta que pasas unas horas 
 
 Las jornadas anteriores se guardan, así sabes cuánto te dejó de verdad esa tarde de seis horas de mazmorras, farmeo y misiones.
 
+### Coste de fabricación en los tooltips
+
+- Pasa el ratón por cualquier objeto que haga una profesión: su **coste de fabricación** con tus precios, y cuánto sale **más barato (en verde) o más caro (en rojo)** que comprarlo en subasta.
+- La profesión y el nivel que hacen falta (Peletería 300…), y el coste por unidad cuando la receta crea varios.
+- Con **Mayús**, cada material: cantidad × precio. Cada material va a lo más barato entre la casa de subastas y un vendedor que lo venda (hilo, viales, fundente…). Si a un material le falta el precio, sale "sin precio" en vez de un total falso.
+- Funciona con profesiones que no tiene ninguno de tus personajes y sin ningún addon de recetas. Las recetas van dentro de FarmGod, con los datos de AtlasLoot Forever, también las que ha añadido Forever. Si un objeto tiene varias recetas, se queda con la más barata.
+
 ### Notas a jugadores: quién farmea tu capa
 
 - Ponle una nota a un jugador ("Farmer", "Bot"…) desde su menú del clic derecho, o con `/farmgod nota Farmer` sobre tu objetivo.
@@ -133,4 +149,4 @@ Las jornadas anteriores se guardan, así sabes cuánto te dejó de verdad esa ta
 - Un aviso en el chat cuando despojas algo que vale 5 de oro o más (tú eliges cuánto).
 - También funciona en mazmorras: tu botín y lo que ganas en las tiradas, tu parte del oro y los bichos de todo el grupo.
 
-Hecho para WoW Forever (versión del juego 1.60.1). Forever esconde algunas cosas a los addons en combate y no tiene algunos eventos del juego: FarmGod sortea las dos cosas.
+Hecho para WoW Forever (versión del juego 1.60.1). Forever esconde algunas cosas a los addons en combate y no tiene algunos eventos del juego: FarmGod sortea las dos cosas. Recetas de AtlasLoot Forever (GPL), con nuestro agradecimiento.

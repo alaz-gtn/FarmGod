@@ -4,7 +4,7 @@
 ## Notes-esES: Sesiones de farmeo: el oro y el botín que sacas minando, recogiendo hierbas, desollando, pescando o matando bichos, valorado por familias con los precios de Auctionator o TSM, que se actualizan al pasar por la casa de subastas. Oro por hora, nodos, bichos, experiencia, historial, objetivos como los de las misiones (40 menas de torio...) y notas a jugadores (Farmer) que avisan cuando uno está en tu capa. /farmgod
 ## Notes-esMX: Sesiones de farmeo: el oro y el botín que sacas minando, recogiendo hierbas, desollando, pescando o matando bichos, valorado por familias con los precios de Auctionator o TSM, que se actualizan al pasar por la casa de subastas. Oro por hora, nodos, bichos, experiencia, historial, objetivos como los de las misiones (40 menas de torio...) y notas a jugadores (Farmer) que avisan cuando uno está en tu capa. /farmgod
 ## Author: wowforeverplus
-## Version: 1.0.0
+## Version: 1.1.0
 ## Category: Professions
 ## OptionalDeps: Auctionator, TradeSkillMaster
 ## SavedVariables: FarmGodDB
@@ -16,6 +16,8 @@
 Locales.lua
 Init.lua
 Items.lua
+Recipes.lua
+Crafting.lua
 Session.lua
 Day.lua
 Rep.lua

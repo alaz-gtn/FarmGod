@@ -964,13 +964,9 @@ function ns.ShowOptionsPage(key)
 		tab.selected:SetShown(on)
 		tab.bar:SetShown(on)
 		tab.label:SetTextColor(unpack(on and TEXT or MUTED))
-		-- Text set while the game was still loading the round font can come out blank: set it again,
-		-- in the game's own font if the round one draws nothing
+		-- The name written again from scratch: the same text set twice isn't drawn again
+		tab.label:SetText("")
 		tab.label:SetText(tab.title)
-		if (tab.label:GetStringWidth() or 0) < 1 then
-			tab.label:SetFont(GameFontNormal:GetFont(), 15, "")
-			tab.label:SetText(tab.title)
-		end
 		if on then
 			scroll:SetScrollChild(page)
 			scroll:SetVerticalScroll(0)
@@ -1128,7 +1124,9 @@ local function Build()
 	end)
 	y = Check(page, y, L.OPT_AUTO_START, function() return session.autoStart end,
 		function(v) session.autoStart = v Tracker() end)
-	y = Slider(page, y, L.OPT_IDLE, 0, 30, 1, function() return session.idleMinutes end,
+	y = Check(page, y, L.OPT_IDLE_ON, function() return session.idlePause end,
+		function(v) session.idlePause = v end)
+	y = Slider(page, y, L.OPT_IDLE, 1, 60, 1, function() return session.idleMinutes end,
 		function(v) session.idleMinutes = v end)
 	y = Slider(page, y, L.OPT_BIG_LOOT, 0, 100, 1, function() return session.bigLoot end,
 		function(v) session.bigLoot = v end)
@@ -1226,6 +1224,9 @@ local function Build()
 		function(v) prices.vendorFallback = v PricesChanged() end)
 	y = Action(page, y, L.OPT_REFRESH, L.REFRESH, function() ns.commands.prices() end)
 	y = Hint(page, y, L.PRICES_HINT)
+	y = Section(page, y, L.SEC_CRAFT)
+	y = Check(page, y, L.OPT_CRAFT, function() return db.craft.enabled end, function(v) db.craft.enabled = v end)
+	y = Hint(page, y, L.CRAFT_HINT)
 	Done(page, y)
 
 	-- Families: how each one is valued

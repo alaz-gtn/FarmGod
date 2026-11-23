@@ -85,9 +85,10 @@ local L = {
 	OPT_END = "End it and keep it in the history",
 	OPT_RESET = "Back to zero (it isn't kept)",
 	OPT_AUTO_START = "Start a session by itself when you loot or gather something",
-	OPT_IDLE = "Pause after this many minutes with nothing looted (0: never)",
+	OPT_IDLE_ON = "Pause by itself when you loot nothing for a while (off: the real time counts)",
+	OPT_IDLE = "After how many minutes",
 	OPT_BIG_LOOT = "Say in the chat when loot is worth this much gold (0: never)",
-	SESSION_HINT = "A paused session doesn't count loot. After an idle pause the minutes with nothing looted come off its time, and it goes on by itself with your next loot. The session survives a /reload or a logout; the time you're logged out doesn't count.",
+	SESSION_HINT = "A paused session doesn't count loot. The pause for looting nothing is off unless you turn it on: then the minutes with nothing looted come off the session's time, and it goes on by itself with your next loot. The session survives a /reload or a logout; the time you're logged out doesn't count.",
 	SEC_WINDOW = "The window",
 	OPT_SHOW = "Show the session window",
 	OPT_ONLY_ACTIVE = "Only while there's a session",
@@ -241,6 +242,24 @@ local L = {
 	REP_TOP = "%s: the top",
 	OPT_REP = "Reputation gained, under the families (hover a faction for the next standing)",
 	DAY_REP = "Reputation",
+	-- Crafting cost in item tooltips
+	SEC_CRAFT = "Crafting cost in item tooltips",
+	OPT_CRAFT = "Show what an item costs to craft in its tooltip",
+	CRAFT_HINT = "For any item a profession makes, even one none of your characters has: its materials with these prices (each at the cheaper of the auction house and a vendor that sells it), against the item's own auction price. Shift shows each material. The recipes come with FarmGod, from AtlasLoot Forever's data: no recipe addon needed.",
+	CRAFT_COST = "Crafting cost",
+	CRAFT_VS_AH = "At the auction house: %s",
+	CRAFT_CHEAPER = "%s cheaper to craft",
+	CRAFT_DEARER = "%s dearer to craft",
+	CRAFT_RECIPE = "Recipe",
+	CRAFT_MAKES = "makes %d",
+	CRAFT_SHIFT = "Shift: the materials",
+	CRAFT_PER_UNIT = "The cost is for one: the recipe makes %d.",
+	CRAFT_CHEAPEST = "The cheapest of its %d recipes.",
+	PROFESSION = {
+		[1] = "First Aid", [2] = "Blacksmithing", [3] = "Leatherworking", [4] = "Alchemy", [6] = "Cooking",
+		[7] = "Mining", [8] = "Tailoring", [9] = "Engineering", [10] = "Enchanting", [13] = "Poisons",
+	},
+
 	TIP_KILLS = "Kills",
 	TIP_LOOTED = "Looted",
 	TIP_PER_KILL = "Worth a kill",
@@ -345,9 +364,10 @@ if GetLocale() == "esES" or GetLocale() == "esMX" then
 	L.OPT_END = "Terminarla y guardarla en el historial"
 	L.OPT_RESET = "Ponerla a cero (no se guarda)"
 	L.OPT_AUTO_START = "Empezar una sesión sola al despojar o recolectar algo"
-	L.OPT_IDLE = "Pausar tras estos minutos sin despojar nada (0: nunca)"
+	L.OPT_IDLE_ON = "Pausar sola si pasas un rato sin despojar nada (apagado: cuenta el tiempo real)"
+	L.OPT_IDLE = "Tras cuántos minutos"
 	L.OPT_BIG_LOOT = "Avisar en el chat del botín que valga este oro (0: nunca)"
-	L.SESSION_HINT = "Una sesión en pausa no cuenta el botín. Tras una pausa por inactividad, los minutos sin despojar nada se quitan de su tiempo y sigue sola con tu próximo botín. La sesión aguanta un /reload o salir del juego; el tiempo desconectado no cuenta."
+	L.SESSION_HINT = "Una sesión en pausa no cuenta el botín. La pausa por no despojar nada está apagada salvo que la enciendas: entonces los minutos sin despojar nada se quitan del tiempo de la sesión, y sigue sola con tu próximo botín. La sesión aguanta un /reload o salir del juego; el tiempo desconectado no cuenta."
 	L.SEC_WINDOW = "La ventana"
 	L.OPT_SHOW = "Mostrar la ventana de la sesión"
 	L.OPT_ONLY_ACTIVE = "Solo mientras haya una sesión"
@@ -490,6 +510,23 @@ if GetLocale() == "esES" or GetLocale() == "esMX" then
 	L.REP_TOP = "%s: lo más alto"
 	L.OPT_REP = "Reputación ganada, bajo las familias (pasa el ratón por una facción para ver el siguiente nivel)"
 	L.DAY_REP = "Reputación"
+	L.SEC_CRAFT = "Coste de fabricación en los tooltips"
+	L.OPT_CRAFT = "Mostrar en el tooltip lo que cuesta fabricar un objeto"
+	L.CRAFT_HINT = "Para cualquier objeto que haga una profesión, aunque no la tenga ninguno de tus personajes: sus materiales con estos precios (cada uno a lo más barato entre la casa de subastas y un vendedor que lo venda), frente al precio en subasta del propio objeto. Con Mayús, cada material. Las recetas van dentro de FarmGod, con los datos de AtlasLoot Forever: no hace falta ningún addon de recetas."
+	L.CRAFT_COST = "Coste de fabricación"
+	L.CRAFT_VS_AH = "En subasta: %s"
+	L.CRAFT_CHEAPER = "%s más barato fabricarlo"
+	L.CRAFT_DEARER = "%s más caro fabricarlo"
+	L.CRAFT_RECIPE = "Receta"
+	L.CRAFT_MAKES = "crea %d"
+	L.CRAFT_SHIFT = "Mayús: los materiales"
+	L.CRAFT_PER_UNIT = "El coste es por unidad: la receta crea %d."
+	L.CRAFT_CHEAPEST = "La más barata de sus %d recetas."
+	L.PROFESSION = {
+		[1] = "Primeros auxilios", [2] = "Herrería", [3] = "Peletería", [4] = "Alquimia", [6] = "Cocina",
+		[7] = "Minería", [8] = "Sastrería", [9] = "Ingeniería", [10] = "Encantamiento", [13] = "Venenos",
+	}
+
 	L.TIP_KILLS = "Bichos matados"
 	L.TIP_LOOTED = "Despojados"
 	L.TIP_PER_KILL = "Por bicho"

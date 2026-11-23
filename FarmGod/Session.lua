@@ -191,6 +191,7 @@ local function Counting()
 end
 
 function ns.CheckIdle()
+	if not ns.db.session.idlePause then return end
 	local minutes = ns.db.session.idleMinutes
 	if minutes <= 0 or ns.SessionState() ~= "running" or not lastActivity then return end
 	if Now() - lastActivity >= minutes * 60 then ns.PauseSession("idle") end

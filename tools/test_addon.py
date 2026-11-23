@@ -74,7 +74,14 @@ ITEMS = {
   [2881] = { "Recipe: Something", 1, 50, 9, 0 }, [3000] = { "Linen Bandage", 1, 10, 0, 7 },
   [50000] = { "Forever Ore", 1, 30, 7, 7 }, [50001] = { "Forever Thing", 1, 8, 7, 0 },
   [10620] = { "Thorium Ore", 1, 100, 7, 7 }, [12363] = { "Arcane Crystal", 2, 1000, 7, 7 },
-  [4304] = { "Thick Leather", 1, 50, 7, 6 }, [15002] = { "Blue Boots", 3, 3000, 4, 0, 2 },
+  [4304] = { "Thick Leather", 1, 50, 7, 6 },
+  -- Materials and what they make, for the crafting cost
+  [2840] = { "Copper Bar", 1, 10, 7, 7 }, [3576] = { "Tin Bar", 1, 10, 7, 7 }, [2841] = { "Bronze Bar", 1, 50, 7, 7 },
+  [2320] = { "Coarse Thread", 1, 2, 7, 5 }, [2302] = { "Handstitched Leather Boots", 1, 30, 4, 2 },
+  [3819] = { "Wintersbite", 1, 50, 7, 9 }, [8846] = { "Gromsblood", 1, 100, 7, 9 }, [3372] = { "Leaded Vial", 1, 10, 7, 0 },
+  [246948] = { "Distilled Firewater", 1, 200, 0, 1 }, [2319] = { "Medium Leather", 1, 15, 7, 6 },
+  [4234] = { "Heavy Leather", 1, 60, 7, 6 }, [118] = { "Minor Healing Potion", 1, 5, 0, 1 },
+  [765] = { "Silverleaf", 1, 5, 7, 9 }, [3371] = { "Empty Vial", 1, 1, 7, 0 }, [2678] = { "Mild Spices", 1, 1, 7, 8 }, [15002] = { "Blue Boots", 3, 3000, 4, 0, 2 },
 }
 QUALITY_COLOURS = { [0] = "ff9d9d9d", [1] = "ffffffff", [2] = "ff1eff00", [3] = "ff0070dd" }
 -- An item link, with the old colour code or Midnight's |cnIQ tag
@@ -115,12 +122,15 @@ C_Item = {
 }
 -- The price addons: Auctionator's last scan and TSM's sources
 AH = { [2770] = 60, [2771] = 150, [818] = 2500, [2447] = 40, [7068] = 12000, [10940] = 300, [15000] = 15000,
-       [50000] = 80, [2589] = 5, [15001] = 90000, [15002] = 40000 }
+       [50000] = 80, [2589] = 5, [15001] = 90000, [15002] = 40000,
+       [2840] = 50, [3576] = 120, [2841] = 100, [3819] = 30, [8846] = 150, [246948] = 1000 }
+-- What the merchants Auctionator has seen charge
+VENDOR = { [3372] = 40, [3371] = 4 }
 Auctionator = { API = { v1 = { GetAuctionPriceByItemID = function(caller, id)
   assert(caller == "FarmGod", "the caller is the addon")
   return AH[id]
-end } } }
-TSM = { DBMarket = { [2770] = 70, [2447] = 55, [2318] = 90 }, DBMinBuyout = { [2770] = 65 } }
+end, GetVendorPriceByItemID = function(caller, id) return VENDOR[id] end } } }
+TSM = { DBMarket = { [2770] = 70, [2447] = 55, [2318] = 90 }, DBMinBuyout = { [2770] = 65 }, VendorBuy = { [2320] = 10, [2678] = 10 } }
 TSM_API = { GetCustomPriceValue = function(source, itemString)
   local id = tonumber(itemString:match("^i:(%d+)$"))
   return TSM[source] and TSM[source][id]
@@ -172,7 +182,7 @@ MENUS = {}
 Menu = { ModifyMenu = function(tag, fn) MENUS[tag] = fn end }
 function MenuRoot() local r = { buttons = {} } function r:CreateDivider() end
   function r:CreateButton(text, fn) table.insert(self.buttons, { text = text, fn = fn }) end return r end
-Enum = { TooltipDataType = { Unit = 2 },
+Enum = { TooltipDataType = { Item = 0, Unit = 2 },
   PlayerInteractionType = { TradePartner = 1, Merchant = 5, TaxiNode = 6, Trainer = 7, MailInfo = 17, Auctioneer = 21 } }
 -- Factions: how much you have with each and the edges of its standing
 G.factions = {
@@ -188,7 +198,7 @@ FACTION_BAR_COLORS = { [4] = { r = 0.9, g = 0.7, b = 0 }, [5] = { r = 0, g = 0.6
 MISSING = {}
 -- Your gold
 GetMoney = function() return G.money end
-TooltipDataProcessor = { AddTooltipPostCall = function(kind, fn) if kind == 2 then TIP_POST = fn end end }
+TooltipDataProcessor = { AddTooltipPostCall = function(kind, fn) if kind == 2 then TIP_POST = fn elseif kind == 0 then ITEM_TIP_POST = fn end end }
 ACCEPT, CANCEL = "Accept", "Cancel"
 StaticPopupDialogs = {}
 StaticPopup_Show = function(name, a, b, data) POPUP = name POPUP_DATA = data end
@@ -204,6 +214,8 @@ local function Texture() local t = { shown = true } TEXTS = TEXTS or {} table.in
   elseif k == "SetColorTexture" or k == "SetTextColor" or k == "SetVertexColor" then self.color = { ... }
   elseif k == "SetText" then self.text = ... elseif k == "GetStringWidth" then return #tostring(self.text or "") * 6
   elseif k == "SetFont" then self.font = { ... }
+  elseif k == "SetFontObject" then local o = ... self.fontObject = o self.font = o and o.font self.color = nil
+  elseif k == "GetTextColor" then if rawget(self, "color") then return unpack(self.color) end
   elseif k == "SetWidth" then self.width = ...
   elseif k == "SetPoint" then self.points = rawget(self, "points") or {} table.insert(self.points, { ... })
   elseif k == "ClearAllPoints" then self.points = {}
@@ -253,6 +265,15 @@ function CreateFrame(kind, name, parent, template)
   if name then NAMED[name] = f end
   return f
 end
+-- Font objects: one per name, the last font set on it counts
+FONT_OBJECTS = {}
+function CreateFont(name)
+  local f = { name = name }
+  function f:SetFont(...) self.font = { ... } end
+  function f:GetFont() return unpack(self.font) end
+  FONT_OBJECTS[name] = f
+  return f
+end
 UIParent = CreateFrame("Frame")
 Minimap = CreateFrame("Frame")
 Minimap.width = 140
@@ -263,7 +284,11 @@ PlaySound = function(id) table.insert(SOUNDKIT_PLAYED, id) end
 TOOLTIP = {}
 GameTooltip = { SetOwner = function() TOOLTIP = {} end, AddLine = function(_, s) table.insert(TOOLTIP, s) end,
   AddDoubleLine = function(_, a, b) table.insert(TOOLTIP, a .. " | " .. b) end, Show = function() end,
-  GetUnit = function() return "someone", G.tipUnit end }
+  GetUnit = function() return "someone", G.tipUnit end, GetItem = function() return "item", G.tipLink end,
+  IsShown = function() return true end, RefreshData = function() REFRESHED = (REFRESHED or 0) + 1 end }
+-- A clicked link's tooltip writes where the usual one does; another addon's tooltip isn't FarmGod's
+ItemRefTooltip = setmetatable({}, { __index = GameTooltip })
+OtherTooltip = setmetatable({}, { __index = GameTooltip })
 GameTooltip_Hide = function() end
 SlashCmdList = {}
 
@@ -650,7 +675,14 @@ check(any(f.text == L.STATE_PAUSED and f.shown for f in everything()), "the wind
 out = slash(word("start", "empezar"))
 check(ns.SessionState() == "running" and out == [L.PREFIX + L.RESUMED], "resumed")
 
-# Nothing looted for a while: an idle pause that takes those minutes off
+# Nothing looted for a while: off unless you want it, the clock keeps the real time
+check(not db.session.idlePause, "the pause for looting nothing is off to begin with")
+loot(2770)
+S.now = S.now + 1200
+G.RunTickers()
+check(ns.SessionState() == "running", "20 minutes with nothing looted: still going, those minutes count")
+# Turned on: an idle pause that takes those minutes off
+db.session.idlePause = True
 loot(2770)
 at = ns.Elapsed()
 S.now = S.now + 300
@@ -665,12 +697,11 @@ check(printed == [L.PREFIX + G.string.format(L.IDLE_PAUSED, 10)], "it says so")
 ns.UpdateTracker()
 check(any(f.text == L.STATE_IDLE and f.shown for f in everything()), "the window says why")
 loot(2770)
-check(ns.SessionState() == "running" and cur()["items"][2770] == 8, "the next loot carries on, and counts")
-db.session.idleMinutes = 0
+check(ns.SessionState() == "running" and cur()["items"][2770] == 9, "the next loot carries on, and counts")
+db.session.idlePause = False
 S.now = S.now + 3600
 ns.CheckIdle()
-check(ns.SessionState() == "running", "idle pause off: it never pauses")
-db.session.idleMinutes = 10
+check(ns.SessionState() == "running", "turned off again: it never pauses")
 
 # ---------------------------------------------------------------- A /reload or a logout keeps it, without the time logged out
 at = ns.Elapsed()
@@ -693,7 +724,7 @@ G.Fire("AUCTION_HOUSE_CLOSED")
 printed.clear()
 G.RunTimers()
 now = ns.Appraise().total
-check(now == was + 8 * 20, f"Copper Ore went up 20c: the session is worth more ({was} -> {now})")
+check(now == was + cur()["items"][2770] * 20, f"Copper Ore went up 20c: the session is worth more ({was} -> {now})")
 check(printed == [L.PREFIX + G.string.format(L.PRICES_UPDATED, M(now), M(was))], f"and it says so: {printed}")
 G.Fire("AUCTION_HOUSE_SHOW")
 G.Fire("AUCTION_HOUSE_CLOSED")
@@ -791,6 +822,12 @@ S.combat = False
 slash("")
 win, pages = ns.OptionsWindow()
 page = {p.key: p for p in pages.values()}
+labels = [f for f in G.TEXTS.values() if f.fontObject is not None and f.text in (L.TAB_SESSION, L.TAB_GOALS, L.TAB_NOTES, L.TAB_DAY,
+          L.TAB_PRICES, L.TAB_FAMILIES, L.TAB_HISTORY)]
+check(len(labels) == 7 and all(G.Same(f.fontObject, labels[0].fontObject) for f in labels)
+      and labels[0].fontObject.font[1].endswith("FredokaOne-Regular.ttf") and labels[0].fontObject.font[2] == 15,
+      "the seven tab names share one font object, round font at 15 (each loading the file itself left three undrawn in the game)")
+check(len(list(G.FONT_OBJECTS.keys())) <= 8, f"one font object per size, not one per text: {list(G.FONT_OBJECTS.keys())}")
 check(set(page.keys()) == {"session", "goals", "notes", "day", "prices", "families", "history"}, f"pages: {list(page.keys())}")
 controls = {c.setting: c for c in page["session"].controls.values()}
 toggle = controls[L.OPT_TOGGLE]
@@ -805,9 +842,15 @@ check(ns.SessionState() == "idle" and toggle.word.text == L.BTN_START, "ended")
 width = controls[L.OPT_WIDTH]
 width.scripts.OnValueChanged(width, 300)
 check(db.tracker.width == 300 and tracker.width == 300, "the window's width")
+idle_on = controls[L.OPT_IDLE_ON]
+idle_on.checked = True
+idle_on.scripts.OnClick(idle_on)
+check(db.session.idlePause, "the idle pause can be turned on")
+idle_on.checked = False
+idle_on.scripts.OnClick(idle_on)
 idle = controls[L.OPT_IDLE]
 idle.scripts.OnValueChanged(idle, 15)
-check(db.session.idleMinutes == 15, "the idle minutes")
+check(db.session.idleMinutes == 15 and not db.session.idlePause, "and its minutes set")
 auto = controls[L.OPT_AUTO_START]
 auto.checked = False
 auto.scripts.OnClick(auto)
@@ -1373,6 +1416,95 @@ hist = [c for c in page["history"].controls.values() if c.setting == "history"][
 line = [ln for ln in hist.lines.values() if ln.shown and G.Same(ln.session, ended)][0]
 line.scripts.OnEnter(line)
 check("Argent Dawn | +250" in list(G.TOOLTIP.values()), "and a past session's tooltip")
+win.Hide(win)
+
+
+# ---------------------------------------------------------------- Crafting cost in item tooltips
+check(len(list(ns.RECIPES.keys())) > 1900, f"the recipes come with FarmGod: {len(list(ns.RECIPES.keys()))} items")
+bad = []
+for item, recipes in ns.RECIPES.items():
+    for r in recipes.values():
+        v = list(r.values())
+        if len(v) < 5 or (len(v) - 3) % 2 or L.PROFESSION[v[0]] is None or any(x <= 0 for x in v[2:]):
+            bad.append(item)
+check(bad == [], f"each one: a profession, its skill, how many it makes, materials with their counts: {bad[:5]}")
+check(list(ns.RECIPES[2841][1].values()) == [7, 65, 2, 2840, 1, 3576, 1], "Smelt Bronze: a Copper Bar and a Tin Bar make 2 Bronze Bars (Wowhead Forever says the same)")
+check(list(ns.RECIPES[246948][1].values()) == [4, 250, 1, 3819, 4, 8846, 2, 3372, 1], "Distilled Firewater, a Forever recipe: 4 Wintersbite, 2 Gromsblood, a Leaded Vial")
+check(list(ns.RECIPES[8170][1].values()) == [3, 250, 1, 4304, 6], "Rugged Leather: 6 Thick Leather in Forever")
+# Black Dragonscale Helm (Yelmo de escamas de dragón negro), new in Forever: the user's example. Wowhead
+# Forever, spell 1254968: 20 Rugged Leather, 40 Black Dragonscale, 12 Enchanted Leather, 4 Cured Rugged
+# Hide, 10 Pristine Scale, 2 Rune Thread, 20 Fel Leather
+check(list(ns.RECIPES[252605][1].values()) == [3, 300, 1, 8170, 20, 15416, 40, 12810, 12, 15407, 4, 249429, 10, 14341, 2, 248825, 20],
+      "Black Dragonscale Helm: Leatherworking 300, its seven materials as Wowhead Forever lists them")
+fmt = G.string.format
+NO_PRICE = L.TAG_NO_PRICE
+
+
+def tip(item=None, tooltip=None, shift=False, link=None):
+    G.TOOLTIP = lua.table()
+    S.shift, S.tipLink = shift, link
+    data = lua.table_from({"id": item}) if item else lua.table()
+    G.ITEM_TIP_POST(tooltip or G.GameTooltip, data)
+    S.shift = False
+    return list(G.TOOLTIP.values())
+
+
+t = tip(2841)
+check(t[1:] == [f"{L.CRAFT_COST} | {M(85)}", fmt(L.CRAFT_VS_AH, M(100)) + " | " + fmt(L.CRAFT_CHEAPER, M(15)),
+                f"{L.CRAFT_RECIPE} | {L.PROFESSION[7]} 65  ·  " + fmt(L.CRAFT_MAKES, 2), L.CRAFT_SHIFT],
+      f"Bronze Bar: 50c + 1s 20c for 2, 85c each, 15c cheaper than its 1s at auction; Mining 65: {t}")
+t = tip(2841, shift=True)
+check(t[4:] == ["  Copper Bar | 1 × " + M(50), "  Tin Bar | 1 × " + M(120), fmt(L.CRAFT_PER_UNIT, 2)],
+      f"with Shift: each material, how many × its price, and that the cost is for one: {t[4:]}")
+G.AH[2841] = 60
+t = tip(2841)
+check(t[2] == fmt(L.CRAFT_VS_AH, M(60)) + " | " + fmt(L.CRAFT_DEARER, M(25)), f"sold for 60c: 25c dearer to craft: {t[2]}")
+G.AH[2841] = 100
+t = tip(246948, shift=True)
+check(t[1] == f"{L.CRAFT_COST} | {M(460)}" and t[2] == fmt(L.CRAFT_VS_AH, M(1000)) + " | " + fmt(L.CRAFT_CHEAPER, M(540))
+      and t[3] == f"{L.CRAFT_RECIPE} | {L.PROFESSION[4]} 250",
+      f"Distilled Firewater: 4 × 30c + 2 × 1s 50c + a 40c vial from a vendor = 4s 60c: {t[:4]}")
+check("  Leaded Vial | 1 × " + M(40) in t, "the vial at what the merchant Auctionator saw charges")
+t = tip(2302)
+check(t[1] == f"{L.CRAFT_COST} | {M(190)}" and t[2] == f"{L.CRAFT_RECIPE} | {L.PROFESSION[3]} 1",
+      f"Handstitched Leather Boots: 2 Light Leather at TSM's 90c, thread at TSM's vendor price 10c; nothing at auction to compare: {t[:3]}")
+t = tip(4234, shift=True)
+check(t[1] == f"{L.CRAFT_COST} | {NO_PRICE}" and "  Medium Leather | 5 × " + NO_PRICE in t
+      and not any(x.startswith(L.CRAFT_VS_AH.split("%s")[0]) for x in t),
+      f"Heavy Leather, with Medium Leather unpriced: no price, rather than a wrong total: {t}")
+t = tip(118, shift=True)
+check(t[1] == f"{L.CRAFT_COST} | {M(54)}" and t[2] == f"{L.CRAFT_RECIPE} | {L.PROFESSION[1]} 1"
+      and fmt(L.CRAFT_CHEAPEST, 2) in t, f"two recipes, one without a price for Silverleaf: the one with every price: {t}")
+G.AH[765] = 5
+t = tip(118)
+check(t[1] == f"{L.CRAFT_COST} | {M(49)}" and t[2] == f"{L.CRAFT_RECIPE} | {L.PROFESSION[4]} 1",
+      f"Silverleaf at 5c: the alchemy recipe is cheaper now: {t[:3]}")
+G.AH[765] = None
+for item, price in ((8170, 300), (15416, 200), (12810, 500), (15407, 1000), (249429, 150), (14341, 50), (248825, 400)):
+    G.AH[item] = price
+t = tip(252605)
+helm = 20 * 300 + 40 * 200 + 12 * 500 + 4 * 1000 + 10 * 150 + 2 * 50 + 20 * 400
+check(t[1] == f"{L.CRAFT_COST} | {M(helm)}" and t[2] == f"{L.CRAFT_RECIPE} | {L.PROFESSION[3]} 300",
+      f"Black Dragonscale Helm's tooltip: its crafting cost, Leatherworking 300: {t[:3]}")
+for item in (8170, 15416, 12810, 15407, 249429, 14341, 248825):
+    G.AH[item] = None
+check(tip(2770) == [], "Copper Ore isn't crafted: nothing added")
+check(len(tip(2841, G.ItemRefTooltip)) == 5 and tip(2841, G.OtherTooltip) == [], "a clicked link's tooltip too; not another addon's")
+check(tip(link=G.Link(2841))[1] == f"{L.CRAFT_COST} | {M(85)}", "the item read from the tooltip when the game doesn't hand it over")
+G.REFRESHED = 0
+G.Fire("MODIFIER_STATE_CHANGED", "LSHIFT", 1)
+G.Fire("MODIFIER_STATE_CHANGED", "LCTRL", 1)
+check(G.REFRESHED == 2, "Shift pressed: the tooltips redraw, with the materials")
+win, pages = ns.OptionsWindow()
+page = {p.key: p for p in pages.values()}
+ns.ShowOptionsPage("prices")
+craft = {c.setting: c for c in page["prices"].controls.values()}[L.OPT_CRAFT]
+check(craft.checked and db.craft.enabled, "on to begin with, in the Prices tab")
+craft.checked = False
+craft.scripts.OnClick(craft)
+check(not db.craft.enabled and tip(2841) == [], "turned off: no crafting cost")
+craft.checked = True
+craft.scripts.OnClick(craft)
 win.Hide(win)
 
 # ---------------------------------------------------------------- The minimap button
